@@ -22,10 +22,6 @@ type ForgotPasswordScreenProps = NativeStackScreenProps<RootStackParamList, "For
 
 
 
-
-
-
-
 const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState<string>("");
   const [verifyCode, setVerifyCode] = useState<string>("");

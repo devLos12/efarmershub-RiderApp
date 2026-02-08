@@ -74,7 +74,7 @@ const Payouts: React.FC = () => {
             if (!res.ok) throw new Error(data.message);
 
             setPayouts(data.reverse());
-
+            
             setError("");
         } catch (error: unknown) {
             if (error instanceof Error) {

@@ -26,14 +26,10 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 
 
-
-
-
 const RootNavigator: React.FC = () =>{
   const { token, loading } = useAuth();
 
 
-  
   if(loading) return
 
   return (

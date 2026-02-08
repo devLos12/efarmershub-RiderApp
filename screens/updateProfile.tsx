@@ -251,6 +251,9 @@ const UpdateProfile: React.FC = () => {
                 </View>
             )}
 
+
+
+
             <ScrollView 
                 className="flex-1" 
                 showsVerticalScrollIndicator={false}

@@ -23,11 +23,13 @@ const CameraCapture: React.FC<CameraCaptureProp> = ({ navigation, route }) => {
 
   
 
-
+  
   if (!permission) {
     // Camera permissions are still loading.
     return <View />;
   }
+
+
 
   if (!permission.granted) {
     // Camera permissions are not granted yet.
@@ -41,6 +43,8 @@ const CameraCapture: React.FC<CameraCaptureProp> = ({ navigation, route }) => {
 
     );
   }
+
+  
 
   const toggleCameraFacing = ()=> {
     setFacing(current => (current === 'back' ? 'front' : 'back'));

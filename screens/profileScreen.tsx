@@ -84,6 +84,7 @@ const ProfileScreen: React.FC = () => {
         }
     };
 
+    
     const handleLogout = () => {
         logOut();
         setOrders([]);
@@ -94,6 +95,9 @@ const ProfileScreen: React.FC = () => {
             routes: [{ name: "Login" }],
         });
     };
+
+
+    
 
 
 

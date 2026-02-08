@@ -40,6 +40,7 @@ const OrderView: React.FC<OrderViewProp> = ({ navigation, route }) =>{
         return current?.paymentStatus;
     }, [orders, orderId]);
 
+    
     useEffect(() => {
         if (showSuccessModal) {
             setTimeout(() => setIsModalVisible(true), 10);
@@ -54,6 +55,7 @@ const OrderView: React.FC<OrderViewProp> = ({ navigation, route }) =>{
             return () => clearTimeout(timer);
         }
     }, [showSuccessModal]);
+
 
     useLayoutEffect(()=>{
         navigation.setOptions({

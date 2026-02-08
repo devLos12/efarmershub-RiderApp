@@ -272,6 +272,10 @@ const QrPayment: React.FC<QrPaymentProp> = ({ navigation, route }) => {
                         </View>
                     </SafeAreaView>
 
+
+
+
+
                     {/* QR Code */}
                     <View className="flex-1 items-center justify-center">
                         <View className="bg-white p-6 rounded-3xl">

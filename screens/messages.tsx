@@ -25,12 +25,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 
 
-
-
-
 type MessageProp = NativeStackScreenProps<RootStackParamList, "Messages">;
-
-
 
 interface MessageType {
     senderId: string;
@@ -70,8 +65,7 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
     }, [navigation, source]);
 
 
-
-
+    
     // Fetch messages
     const getMessages = async () => {
         try {
@@ -81,7 +75,6 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
                     "Authorization": `Bearer ${token}`
                 }
             });
-
             
             if (res.status === 401) {
                 navigation.replace("Login");
@@ -94,14 +87,13 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
             setLoading(false);
             setChat(data);
             setError(null);
+
         } catch (err: any) {
             setLoading(false);
             setError(err.message);
             console.log("Error: ", err.message);
         }
     };
-
-
 
 
     
@@ -120,6 +112,7 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
             });
         }
     }, [chat]);
+
 
     // Socket connection
     useEffect(() => {
@@ -145,6 +138,8 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
             }
         };
     }, [chatId]);
+
+    
 
     // Pick images
     const pickImages = async () => {

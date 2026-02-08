@@ -15,8 +15,6 @@ type OrderListProps = {
 
 
 
-
-
 const OrderList: React.FC<OrderListProps> = ({ onRefresh }) => {
     const { orders, error, token, setOrders } = useAuth();
     const navigation = useNavigation<NavProps>();

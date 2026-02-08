@@ -10,6 +10,8 @@ import {
   Keyboard, 
   TouchableWithoutFeedback,
   Modal,
+  ActivityIndicator,
+  Image
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -36,12 +38,6 @@ type LoginScreenProps = NativeStackScreenProps<RootStackParamList, "Login", "For
 
 
 
-
-
-
-
-
-
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -51,10 +47,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const { login } = useAuth();
 
   // Modal states
-  const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [showErrorModal, setShowErrorModal] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string>("");
   const [errorType, setErrorType] = useState<string>("");
 
   const handleSubmit = async () => {
@@ -95,19 +89,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         return;
       }
 
-      // Show success modal
-      setSuccessMessage(data.message || "Successfully logged in!");
-      setShowSuccessModal(true);
-
-      if (data.accessToken) {
-        await login(data.accessToken);
-      }
-
-      // Navigate after a short delay
-      setTimeout(() => {
-        setShowSuccessModal(false);
-        navigation.navigate("TabScreen");
-      }, 1500);
+    // Direct navigate on success
+    if (data.accessToken) {
+      await login(data.accessToken);
+      navigation.navigate("TabScreen");
+    }
 
     } catch (error: unknown) {
       if (error instanceof z.ZodError) {
@@ -129,6 +115,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     }
   };
 
+
   const getErrorIcon = () => {
     if (errorType === "pending") {
       return <Ionicons name="time-outline" size={70} color="#f59e0b" />;
@@ -147,6 +134,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     return "bg-red-100";
   };
 
+  
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100" edges={["top"]}>
       <KeyboardAvoidingView
@@ -164,25 +153,22 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           >
             <View className="flex-1 px-6 justify-center">
               {/* Header Section */}
-              <View className="items-center mb-8">
-                <View className="w-20 h-20 bg-primary rounded-full border-white border shadow items-center justify-center mb-4">
-                  <Ionicons name="bicycle" size={40} color="white" />
-                </View>
-                <Text className="font-bold text-2xl text-primary text-center">
+              <View className="flex-column items-center gap-1 mb-8 rounded-3xl ">
+                <Image 
+                source={require("../assets/efarmerslogo.png")}
+                className="w-20 h-20 bg-red"/>
+
+                <Text className="font-bold text-2xl text-primary text-center ">
                   E-Farmers Hub
                 </Text>
-                <Text className="text-lg font-bold text-gray-600 capitalize w-full mt-2 text-center ">
+                <Text className="text-lg font-bold text-gray-600 capitalize w-full text-center ">
                   rider login
                 </Text>
-                <Text>
+                {/* <Text>
                   {API_URL}
-                </Text>
+                </Text> */}
               </View>
              
-
-
-
-
 
               {/* Login Form */}
               <View className="bg-white rounded-3xl p-6 shadow-sm">
@@ -286,25 +272,29 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
                 {/* Login Button */}
                 <TouchableOpacity
-                  className={`rounded-xl py-4 flex-row items-center justify-center ${
-                    isLoading ? "bg-gray-400" : "bg-black"
-                  }`}
-                  onPress={handleSubmit}
-                  disabled={isLoading}
+                className={`rounded-xl py-4 flex-row items-center justify-center ${
+                  isLoading ? "bg-gray-400" : "bg-black"
+                }`}
+                onPress={handleSubmit}
+                disabled={isLoading}
                 >
-                  {isLoading ? (
-                    <Text className="text-white font-bold text-base">
+                {isLoading ? (
+                  <>
+                    <ActivityIndicator size="small" color="white" />
+                    <Text className="text-white font-bold text-base ml-2">
                       Logging in...
                     </Text>
-                  ) : (
-                    <>
-                      <Ionicons name="log-in-outline" size={20} color="white" />
-                      <Text className="text-white font-bold text-base ml-2">
-                        Login
-                      </Text>
-                    </>
-                  )}
+                  </>
+                ) : (
+                  <>
+                    <Ionicons name="log-in-outline" size={20} color="white" />
+                    <Text className="text-white font-bold text-base ml-2">
+                      Login
+                    </Text>
+                  </>
+                )}
                 </TouchableOpacity>
+
               </View>
 
               {/* Footer */}
@@ -319,27 +309,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
 
-      {/* Success Modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={showSuccessModal}
-        onRequestClose={() => setShowSuccessModal(false)}
-      >
-        <View className="flex-1 justify-center items-center bg-black/50 px-6">
-          <View className="bg-white rounded-3xl p-10 w-full items-center shadow-lg">
-            <View className="w-28 h-28 bg-green-100 rounded-full items-center justify-center mb-6">
-              <Ionicons name="checkmark-circle" size={70} color="#22c55e" />
-            </View>
-            <Text className="text-3xl font-bold text-gray-800 mb-3">
-              Success!
-            </Text>
-            <Text className="text-gray-600 text-center text-lg mb-8">
-              {successMessage}
-            </Text>
-          </View>
-        </View>
-      </Modal>
+      
+
 
       {/* Error Modal */}
       <Modal
@@ -374,5 +345,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     </SafeAreaView>
   );
 };
+
+
+
 
 export default LoginScreen;

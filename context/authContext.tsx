@@ -48,8 +48,6 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
 
 
 
-    
-    
 
     // Fetch inbox chats
     const getChatsInbox = async () => {
@@ -69,7 +67,6 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
             setInboxError(null);
             setInboxList(data);
 
-            
 
             // Count unread chats and update badge
             const unreadChatsCount = data.filter((chat: InboxItem) => {
@@ -112,7 +109,6 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
         getChatsInbox();
 
         socketRef.current.on("newChatInbox", (e: any) => {
-            console.log("New chat inbox event:", e.message);
             getChatsInbox();
         });
 
@@ -167,3 +163,4 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
         </AuthContext.Provider>
     )
 }
+
