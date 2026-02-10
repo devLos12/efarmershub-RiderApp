@@ -164,11 +164,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 <Text className="text-lg font-bold text-gray-600 capitalize w-full text-center ">
                   rider login
                 </Text>
-                {/* <Text>
+                <Text>
                   {API_URL}
-                </Text> */}
+                </Text>
               </View>
              
+              
 
               {/* Login Form */}
               <View className="bg-white rounded-3xl p-6 shadow-sm">

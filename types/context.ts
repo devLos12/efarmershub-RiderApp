@@ -77,6 +77,7 @@ export type AuthContextProps = {
     login: (newToken: string) => Promise<void>;
     logOut: () => Promise<void>;
     loading: boolean;
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
     orders: Orders[];
     setOrders: React.Dispatch<React.SetStateAction<Orders[]>>;
     error: string | null;

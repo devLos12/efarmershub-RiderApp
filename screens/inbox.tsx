@@ -130,6 +130,7 @@ const Inbox: React.FC = () => {
         // Close menu
         setOpenMenuId(null);
 
+        
         try {
             await fetch(`${API_URL}/api/deleteRiderChat/${chatId}`, {
                 method: "PATCH",
@@ -145,7 +146,7 @@ const Inbox: React.FC = () => {
         return (
             <SafeAreaView className="flex-1 bg-gray-50">
                 <View className="flex-1 justify-center items-center">
-                    <ActivityIndicator size="large" color="#007bff" />
+                    <ActivityIndicator size="large" color="green" />
                 </View>
             </SafeAreaView>
         );
@@ -170,7 +171,12 @@ const Inbox: React.FC = () => {
                 {/* Chat List */}
                 <ScrollView
                     refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                        <RefreshControl 
+                        refreshing={refreshing} 
+                        onRefresh={onRefresh} 
+                        colors={["#16a34a"]} 
+                        tintColor="#16a34a" 
+                    />
                     }
                     showsVerticalScrollIndicator={false}
                 >

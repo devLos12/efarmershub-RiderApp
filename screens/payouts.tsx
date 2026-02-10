@@ -1,6 +1,6 @@
 import { API_URL } from "@env";
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, RefreshControl, TouchableOpacity, Image, Alert, Modal, Dimensions } from "react-native";
+import { View, Text, ScrollView, RefreshControl, TouchableOpacity, Image, Alert, Modal, Dimensions, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../context/useAuth";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -114,6 +114,7 @@ const Payouts: React.FC = () => {
         });
     };
 
+    
     const toggleSelectAll = () => {
         if (selectedIds.size === payouts.length) {
             setSelectedIds(new Set());
@@ -180,15 +181,14 @@ const Payouts: React.FC = () => {
 
     if (loading) {
         return (
-            <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
-                <View className="flex-1 items-center justify-center">
-                    <MaterialCommunityIcons name="loading" size={48} color="#16a34a" />
-                    <Text className="text-gray-500 mt-4">Loading payouts...</Text>
+            <SafeAreaView className="flex-1 bg-gray-50">
+                <View className="flex-1 justify-center items-center">
+                    <ActivityIndicator size="large" color="green" />
                 </View>
             </SafeAreaView>
         );
     }
-
+    
     if (error && payouts.length === 0) {
         return (
             <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>

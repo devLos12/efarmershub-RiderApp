@@ -63,6 +63,8 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
             const data = await res.json();
             if (!res.ok) throw new Error(data.message);
 
+            
+
             setInboxLoading(false);
             setInboxError(null);
             setInboxList(data);
@@ -142,6 +144,7 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
             login, 
             logOut, 
             loading,
+            setLoading,
             orders, 
             setOrders,
             error, 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { View, Text, TouchableOpacity, Image, Switch, ScrollView, Alert } from "react-native";
+import { View, Text, TouchableOpacity, Image, Switch, ScrollView, Alert, ActivityIndicator } from "react-native";
 import { RootStackParamList } from "../types/navigation";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../context/useAuth";
@@ -13,7 +13,7 @@ import { API_URL } from "@env";
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
 const ProfileScreen: React.FC = () => {
-    const { token, logOut, setOrders, user, setUser } = useAuth();
+    const { token, logOut, setOrders, user, setUser, loading } = useAuth();
     const navigation = useNavigation<NavProp>();
     const [isOnline, setIsOnline] = useState<boolean>(false);   
 
@@ -84,6 +84,8 @@ const ProfileScreen: React.FC = () => {
         }
     };
 
+
+    
     
     const handleLogout = () => {
         logOut();
@@ -94,10 +96,18 @@ const ProfileScreen: React.FC = () => {
             index: 0,
             routes: [{ name: "Login" }],
         });
-    };
+    };  
 
 
-    
+    if(loading) {    
+        return (
+            <SafeAreaView className="flex-1 bg-gray-50">
+                <View className="flex-1 justify-center items-center">
+                    <ActivityIndicator size="large" color="green" />
+                </View>
+            </SafeAreaView>
+        );
+    }
 
 
 

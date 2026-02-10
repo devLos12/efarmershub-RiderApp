@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Alert } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Alert, SafeAreaView, ActivityIndicator } from "react-native";
 import { useAuth } from "../context/useAuth";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { RootStackParamList } from "../types/navigation";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { API_URL } from "@env";
+
+
+
 
 type NavProps = NativeStackNavigationProp<RootStackParamList>;
 
@@ -14,9 +17,8 @@ type OrderListProps = {
 }
 
 
-
 const OrderList: React.FC<OrderListProps> = ({ onRefresh }) => {
-    const { orders, error, token, setOrders } = useAuth();
+    const { orders, error, token, setOrders, loading} = useAuth();
     const navigation = useNavigation<NavProps>();
     const [refreshing, setRefreshing] = useState(false);
     const [isSelectMode, setIsSelectMode] = useState(false);
@@ -120,7 +122,20 @@ const OrderList: React.FC<OrderListProps> = ({ onRefresh }) => {
         );
     };
 
-   
+    
+
+    if(loading) {
+        return (
+            <SafeAreaView className="flex-1 bg-gray-50">
+                <View className="flex-1 justify-center items-center">
+                    <ActivityIndicator size="large" color="green" />
+                </View>
+            </SafeAreaView>
+        )
+    }
+    
+
+
 
     return(
         <ScrollView 
@@ -137,7 +152,7 @@ const OrderList: React.FC<OrderListProps> = ({ onRefresh }) => {
         >
             {orders.length > 0 ? (
 
-            <View className="mx-3 mt-4 pb-4">
+            <View className="mx-3 mt-4 pb-4 ">
                 {/* Header with Select/Delete */}
                 <View className="flex-row items-center justify-between mb-4">
                     <View className="flex-row items-center gap-2">

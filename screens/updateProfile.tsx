@@ -194,7 +194,8 @@ const UpdateProfile: React.FC = () => {
 
             const data = await response.json();
             if (!response.ok) throw new Error(data.message);
-
+            
+            
             setImagePreview(null);
             setImagePrev(null);
             setUser(data.rider);

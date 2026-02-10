@@ -12,7 +12,7 @@ import { RootStackParamList } from "../types/navigation";
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
 const HomeScreen: React.FC = () => {
-  const { token, setOrders, setError, triggerUi, logOut } = useAuth();
+  const { token, setOrders, setError, triggerUi, logOut, setLoading } = useAuth();
   const navigation = useNavigation<NavProp>();
   const latestOrderRef = useRef<any>(null);
 
@@ -38,15 +38,18 @@ const HomeScreen: React.FC = () => {
       if(!res.ok) throw new Error(data.message);
       
       setOrders(data.reverse());
+      setLoading(false);
       
       // Store latest order in ref for socket handler
       if (data && data.length > 0) {
         latestOrderRef.current = data[0];
-      }
+      } 
 
+      
     }catch(error: unknown){
       if( error instanceof Error){
         setError(error.message);
+        setLoading(false)
 
         if(error.message === "Token Expired!"){
           Alert.alert("Error: ", "Session Expired");
@@ -57,21 +60,17 @@ const HomeScreen: React.FC = () => {
             routes: [{ name: "Login" }],
           });
         }
+
         console.log("Error:", error.message);
       } else {
         console.log("Unknown Error: ", error);
       }
     }
   }
-
-  
   
 
   useEffect(() => {
     const socket = io(API_URL);
-    
-
-    
 
     getAllDelivery();
     socket.on("to rider", async (e: socketProps) => {

@@ -34,17 +34,15 @@ const CameraCapture: React.FC<CameraCaptureProp> = ({ navigation, route }) => {
   if (!permission.granted) {
     // Camera permissions are not granted yet.
     return (
-      <SafeAreaView>
-        <View  className='flex-1 justify-center align-center h-screen'>
-          <Text className='text-center'>We need your permission to show the camera</Text>
-          <Button onPress={requestPermission} title="grant permission" />
-        </View>
+      <SafeAreaView className='flex-1 justify-center items-center'>
+        <Text className='text-center text-lg mb-4'>We need your permission to show the camera</Text>
+        <Button onPress={requestPermission} title="grant permission" />
       </SafeAreaView>
 
     );
   }
 
-  
+    
 
   const toggleCameraFacing = ()=> {
     setFacing(current => (current === 'back' ? 'front' : 'back'));

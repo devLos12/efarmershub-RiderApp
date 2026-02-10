@@ -19,6 +19,8 @@ const MyCustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
     const { inboxBadge, setInboxBadge } = useAuth();
 
 
+
+    
     
     
     // Hide badge when navigating to Inbox tab

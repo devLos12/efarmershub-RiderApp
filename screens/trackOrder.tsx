@@ -9,10 +9,6 @@ import { useAuth } from "../context/useAuth";
 
 
 
-
-
-
-
 type  TrackOrderProp = NativeStackScreenProps<RootStackParamList, "TrackOrder">;
 
 const TrackOrder: React.FC<TrackOrderProp> = ({ navigation, route }) => {

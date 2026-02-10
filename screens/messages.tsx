@@ -14,6 +14,7 @@ import {
     Keyboard,
     StyleSheet,
     TouchableWithoutFeedback,
+    RefreshControl,
 } from "react-native";
 import { RootStackParamList } from "../types/navigation";
 import * as ImagePicker from 'expo-image-picker';
@@ -56,8 +57,13 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
     const socketRef = useRef<Socket | null>(null);
 
     const [inputHeight, setInputHeight] = useState(40);
+    
+    
+    
+    const [refreshing, setRefreshing] = useState(false);
+    
 
-
+    
     useLayoutEffect(() => {
         navigation.setOptions({
             title: (source === "user") || (source === "User") ? "Buyer" : "Help & Support",
@@ -84,14 +90,28 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
             const data = await res.json();
             if (!res.ok) throw new Error(data.message);
 
-            setLoading(false);
             setChat(data);
             setError(null);
 
+            return data;
         } catch (err: any) {
-            setLoading(false);
             setError(err.message);
             console.log("Error: ", err.message);
+            throw err;
+
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        try {
+            await getMessages();
+        } catch (error) {
+            console.log("Refresh error:", error);
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -235,8 +255,8 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
     useEffect(() => {
         if (scrollViewRef.current && chat.length > 0) {
             setTimeout(() => {
-                scrollViewRef.current?.scrollToEnd({ animated: true });
-            }, 0);
+                scrollViewRef.current?.scrollToEnd({ animated: false });
+            }, 500);
         }
     }, [chat, messageText]);
 
@@ -256,8 +276,7 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
         };
     }, []);
 
-
-
+    
 
     // Format date
     const formatDate = (date: Date) => {
@@ -275,22 +294,24 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
         });
     };
 
+
     if (loading) {
         return (
             <View className="flex-1 justify-center items-center">
-                <ActivityIndicator size="large" color="#007bff" />
+                <ActivityIndicator size="large" color="green" />
             </View>
         );
     }
 
     return (
         <>
+
          <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{flex: 1}}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 50}
-        > 
-           <TouchableWithoutFeedback onPress={Keyboard.dismiss} >
+        >               
+        
                     <View className="flex-1 justify-between ">
 
                         <View className="flex-row items-center p-4 bg-white border-b border-gray-200"> 
@@ -312,8 +333,16 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
 
                         <ScrollView
                             ref={scrollViewRef}
-                            className="px-4"
-                            showsVerticalScrollIndicator={true}
+                            className="px-4 "
+                            showsVerticalScrollIndicator={false}
+                            refreshControl={
+                                <RefreshControl 
+                                    refreshing={refreshing}
+                                    onRefresh={onRefresh}
+                                    colors={["#16a34a"]}
+                                    tintColor="#16a34a"
+                                />
+                            }   
                         >
                             {chat.length === 0 ? (
                                 <View className="flex-1 justify-center items-center mt-16">
@@ -352,7 +381,7 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
                                                         {item.imageFiles?.map((filename, imgIndex) => (
                                                             <Image
                                                                 key={imgIndex}
-                                                                source={{ uri: `${API_URL}/api/uploads/${filename}` }}
+                                                                source={{ uri: `${filename}` }}
                                                                 className="w-[120px] h-[120px] rounded-lg m-0.5"
                                                             />
                                                         ))}
@@ -416,46 +445,46 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
                                     )}
                                 </ScrollView>
                         )}
-
-                        <SafeAreaView className="bg-white " edges={["bottom", "right", "left"]}
-                        >
-                            <View className="flex-row items-end p-3 bg-white border-t border-gray-200"
+                        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                            <SafeAreaView className="bg-white " edges={["bottom", "right", "left"]}
                             >
-                                <TouchableOpacity 
-                                    className="w-10 h-10 rounded-full bg-gray-200 justify-center items-center mr-2"
-                                    onPress={pickImages}
+                                <View className="flex-row items-end p-3 bg-white border-t border-gray-200"
                                 >
-                                    <Text className="text-2xl text-gray-600">+</Text>
-                                </TouchableOpacity>
+                                    <TouchableOpacity 
+                                        className="w-10 h-10 rounded-full bg-gray-200 justify-center items-center mr-2"
+                                        onPress={pickImages}
+                                    >
+                                        <Text className="text-2xl text-gray-600">+</Text>
+                                    </TouchableOpacity>
 
-                                <TextInput
-                                    className="flex-1 max-h-[100px] px-3 py-2 bg-gray-200 rounded-full mr-2"
-                                    value={messageText}
-                                    onChangeText={setMessageText}
-                                    placeholder="Type a message..."
-                                    multiline
-                                    numberOfLines={2}
-                                    onContentSizeChange={(e) => {
-                                        const height = e.nativeEvent.contentSize.height;
-                                        setInputHeight(Math.min(height, 80)); // max 80px for 2 rows
-                                    }}
-                                    style={{
-                                        maxHeight: 80,
-                                        minHeight: 40,
-                                    }}
+                                    <TextInput
+                                        className="flex-1 max-h-[100px] px-3 py-2 bg-gray-200 rounded-full mr-2"
+                                        value={messageText}
+                                        onChangeText={setMessageText}
+                                        placeholder="Type a message..."
+                                        multiline
+                                        numberOfLines={2}
+                                        onContentSizeChange={(e) => {
+                                            const height = e.nativeEvent.contentSize.height;
+                                            setInputHeight(Math.min(height, 80)); // max 80px for 2 rows
+                                        }}
+                                        style={{
+                                            maxHeight: 80,
+                                            minHeight: 40,
+                                        }}
 
-                                />
+                                    />
 
-                                <TouchableOpacity 
-                                    className="w-10 h-10 rounded-full bg-black justify-center items-center"
-                                    onPress={sendMessage}
-                                >
-                                    <Ionicons name="chevron-forward" color={"white"} size={19}/>
-                                </TouchableOpacity>
-                            </View>
-                        </SafeAreaView>
+                                    <TouchableOpacity 
+                                        className="w-10 h-10 rounded-full bg-black justify-center items-center"
+                                        onPress={sendMessage}
+                                    >
+                                        <Ionicons name="chevron-forward" color={"white"} size={19}/>
+                                    </TouchableOpacity>
+                                </View>
+                            </SafeAreaView>
+                        </TouchableWithoutFeedback>
                     </View>                    
-                </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
 
 

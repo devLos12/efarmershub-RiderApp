@@ -11,6 +11,8 @@ import {
   Keyboard,
 } from 'react-native';
 
+
+
 const KeyboardAvoidingComponent = () => {
   return (
     <KeyboardAvoidingView

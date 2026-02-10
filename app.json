@@ -4,11 +4,11 @@
     "slug": "rider-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/efarmerslogo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/efarmerslogo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,7 +17,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/efarmerslogo.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -28,10 +28,11 @@
     },
     "plugins": [
       "expo-maps"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "acd0ec73-8060-4a32-a1d9-eca6bf95719d"
+      }
+    }
   }
 }
-
-
-
-
