@@ -37,3 +37,6 @@ yarn-error.*
 *.tsbuildinfo
 
 .env
+
+efarmershub-816358276d03.json
+google-services.json

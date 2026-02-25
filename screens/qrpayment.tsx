@@ -46,9 +46,7 @@ const QrPayment: React.FC<QrPaymentProp> = ({ navigation, route }) => {
         })
     },[navigation]);
 
-
-
-
+    
 
 
     const getQrPayment = async () => {
@@ -164,6 +162,8 @@ const QrPayment: React.FC<QrPaymentProp> = ({ navigation, route }) => {
                     </View>
                 </View>
 
+                
+
                 {/* QR Code List */}
                 {qrPayments.length === 0 ? (
                     <View className="flex-1 items-center justify-center py-20">
@@ -197,7 +197,7 @@ const QrPayment: React.FC<QrPaymentProp> = ({ navigation, route }) => {
                                             </Text>
                                         </View>
                                         <View className="bg-white px-3 py-1 rounded-full">
-                                            <Text className="text-gray-600 text-xs font-medium">Active</Text>
+                                            <Text className="text-green-600 text-xs font-medium ">Active</Text>
                                         </View>
                                     </View>
 

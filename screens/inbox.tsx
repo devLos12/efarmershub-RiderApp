@@ -21,6 +21,8 @@ import { Ionicons } from '@expo/vector-icons';
 type NavProp = NativeStackNavigationProp<RootStackParamList, "Messages">;
 
 
+
+
 const Inbox: React.FC = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -130,7 +132,7 @@ const Inbox: React.FC = () => {
         // Close menu
         setOpenMenuId(null);
 
-        
+            
         try {
             await fetch(`${API_URL}/api/deleteRiderChat/${chatId}`, {
                 method: "PATCH",
@@ -144,14 +146,16 @@ const Inbox: React.FC = () => {
 
     if (inboxLoading) {
         return (
-            <SafeAreaView className="flex-1 bg-gray-50">
-                <View className="flex-1 justify-center items-center">
-                    <ActivityIndicator size="large" color="green" />
-                </View>
-            </SafeAreaView>
+            <View className="flex-1 justify-center items-center">
+                <ActivityIndicator size="large" color="green" />
+                <Text className="mt-2">Loading Inbox</Text>
+            </View>
         );
     }
+
+
     
+
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
             <Pressable 
@@ -199,6 +203,7 @@ const Inbox: React.FC = () => {
                                     key={data._id}
                                     onPress={() => handleChatPress(data)}
                                     activeOpacity={0.7}
+                                    style={{ zIndex: isMenuOpen ? 999 : 1, elevation: isMenuOpen ? 999 : 1 }} // ← dagdag ito
                                     className={`${unreadCount > 0 ? "bg-blue-50" : "bg-white"} rounded-2xl p-3 mb-3 flex-row items-center shadow-sm`}
                                 >
                                     {/* Avatar */}
@@ -257,13 +262,24 @@ const Inbox: React.FC = () => {
                                     >
                                         <Ionicons name="ellipsis-horizontal" size={18} color="#666" />
                                     </TouchableOpacity>
-
+                                    
+                                    
                                     {/* Delete Menu */}
                                     {isMenuOpen && (
-                                        <View className="absolute top-14 right-3 bg-white rounded-lg shadow-lg p-2 z-10 border border-gray-200">
+                                        <View 
+                                        className="absolute top-14 right-3 bg-white rounded-lg shadow-lg p-2 border border-gray-200"
+                                        style={{ 
+                                            zIndex: 99999, 
+                                            elevation: 99999,  // ← ito yung kulang, need sa Android
+                                            shadowColor: '#000', 
+                                            shadowOffset: { width: 0, height: 2 }, 
+                                            shadowOpacity: 0.25, 
+                                            shadowRadius: 4 
+                                        }}
+                                        >
                                             <TouchableOpacity
                                                 onPress={() => handleDeleteChat(data._id)}
-                                                className="flex-row items-center px-3 py-2 rounded"
+                                                className="flex-row items-center px-3 py-5 rounded"
                                             >
                                                 <Ionicons name="trash-outline" size={18} color="#dc3545" />
                                                 <Text className="text-red-600 font-semibold ml-2 capitalize">delete</Text>

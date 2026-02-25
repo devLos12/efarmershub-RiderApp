@@ -44,6 +44,7 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
     const [inboxLoading, setInboxLoading] = useState(true);
     const [inboxError, setInboxError] = useState<string | null>(null);
     const socketRef = useRef<any>(null);
+    const [ordersLoading, setOrdersLoading] = useState(true);
 
 
 
@@ -69,6 +70,8 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
             setInboxError(null);
             setInboxList(data);
 
+            
+            
 
             // Count unread chats and update badge
             const unreadChatsCount = data.filter((chat: InboxItem) => {
@@ -137,6 +140,8 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
         }
     }
 
+
+    
     return (
         <AuthContext.Provider value={{ 
             token, 
@@ -160,7 +165,9 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
             setInboxList,
             inboxLoading,
             inboxError,
-            getChatsInbox
+            getChatsInbox,
+            ordersLoading,
+            setOrdersLoading
         }}>
             {children}
         </AuthContext.Provider>

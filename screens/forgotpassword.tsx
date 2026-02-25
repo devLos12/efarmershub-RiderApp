@@ -23,7 +23,6 @@ type ForgotPasswordScreenProps = NativeStackScreenProps<RootStackParamList, "For
 
 
 
-
 const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState<string>("");
   const [verifyCode, setVerifyCode] = useState<string>("");
@@ -148,6 +147,7 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
     }
   };
 
+  
   const handleChangePassword = async () => {
     setPasswordError({ newPassword: '', confirmPassword: '' });
 
@@ -209,6 +209,10 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
       console.log("Error: ", error.message);
     }
   };
+
+
+
+  
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100" edges={["top"]}>

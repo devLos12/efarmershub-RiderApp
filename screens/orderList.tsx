@@ -9,7 +9,6 @@ import { API_URL } from "@env";
 
 
 
-
 type NavProps = NativeStackNavigationProp<RootStackParamList>;
 
 type OrderListProps = {
@@ -17,8 +16,13 @@ type OrderListProps = {
 }
 
 
+
+
+
+
+
 const OrderList: React.FC<OrderListProps> = ({ onRefresh }) => {
-    const { orders, error, token, setOrders, loading} = useAuth();
+    const { orders, error, token, setOrders} = useAuth();
     const navigation = useNavigation<NavProps>();
     const [refreshing, setRefreshing] = useState(false);
     const [isSelectMode, setIsSelectMode] = useState(false);
@@ -27,6 +31,7 @@ const OrderList: React.FC<OrderListProps> = ({ onRefresh }) => {
 
     const handleRefresh = async () => {
         setRefreshing(true);
+
 
         try {
             await onRefresh();
@@ -123,18 +128,16 @@ const OrderList: React.FC<OrderListProps> = ({ onRefresh }) => {
     };
 
     
-
-    if(loading) {
+    
+    if(orders.length === 0) {
         return (
-            <SafeAreaView className="flex-1 bg-gray-50">
-                <View className="flex-1 justify-center items-center">
-                    <ActivityIndicator size="large" color="green" />
-                </View>
-            </SafeAreaView>
+            <View className="flex-1 items-center justify-center bg-gray-50 h-screen" 
+            >
+                <Ionicons name="cube-outline" size={64} color="#d1d5db" />
+                <Text className="capitalize text-lg text-center text-gray-400 mt-4 px-8">{error || 'No Orders'}</Text>
+            </View>
         )
     }
-    
-
 
 
     return(
@@ -150,7 +153,6 @@ const OrderList: React.FC<OrderListProps> = ({ onRefresh }) => {
                 />
             }
         >
-            {orders.length > 0 ? (
 
             <View className="mx-3 mt-4 pb-4 ">
                 {/* Header with Select/Delete */}
@@ -329,14 +331,6 @@ const OrderList: React.FC<OrderListProps> = ({ onRefresh }) => {
                     </TouchableOpacity>
                 ))}
             </View>
-            ) : (
-                <View className="flex-1 items-center justify-center bg-gray-50 h-screen" 
-                >
-                    <Ionicons name="cube-outline" size={64} color="#d1d5db" />
-                    <Text className="capitalize text-lg text-center text-gray-400 mt-4 px-8">{error}</Text>
-                </View>
-            )}
-
 
         </ScrollView>
     )

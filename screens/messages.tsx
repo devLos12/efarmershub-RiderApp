@@ -70,8 +70,9 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
         });
     }, [navigation, source]);
 
-
     
+
+
     // Fetch messages
     const getMessages = async () => {
         try {
@@ -276,7 +277,7 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
         };
     }, []);
 
-    
+        
 
     // Format date
     const formatDate = (date: Date) => {
@@ -299,6 +300,7 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
         return (
             <View className="flex-1 justify-center items-center">
                 <ActivityIndicator size="large" color="green" />
+                <Text className="mt-2">Loading Messages</Text>
             </View>
         );
     }
@@ -325,7 +327,7 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
                             <View className="ml-3 flex-1">
                                 <View className="flex-row items-center">
                                     <Text className="text-lg font-bold capitalize">{credentials?.name}</Text>
-                                    <Text className="ml-2 text-sm text-gray-600">({credentials?.role})</Text>
+                                    <Text className="ml-2 text-sm text-gray-600">({credentials?.role === "User" ? "Buyer" : credentials?.role})</Text>
                                 </View>
                                 <Text className="text-sm text-gray-600">{credentials?.email}</Text>
                             </View>

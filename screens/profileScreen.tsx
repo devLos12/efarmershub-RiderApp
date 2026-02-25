@@ -8,45 +8,49 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { API_URL } from "@env";
 
-
-
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
 const ProfileScreen: React.FC = () => {
-    const { token, logOut, setOrders, user, setUser, loading } = useAuth();
+    const { token, logOut, setOrders, user, setUser } = useAuth();
     const navigation = useNavigation<NavProp>();
-    const [isOnline, setIsOnline] = useState<boolean>(false);   
-
+    const [isOnline, setIsOnline] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true); // ← Local loading state
     
     // Rider profile
     useEffect(() => {
-        fetch(`${API_URL}/api/getProfile`, { 
-            method: "GET",
-            headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        })
-        .then(async(res) => {
-            const data = await res.json();
-            if(!res.ok) throw new Error(data.message);
-            return data;
-        })
-        .then((data) => {
+        const fetchProfile = async () => {
+            try {
+                setLoading(true); // ← Start loading
+                
+                const res = await fetch(`${API_URL}/api/getProfile`, { 
+                    method: "GET",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
 
-            setUser(data);
-            // Check for both "available" and "online" for backwards compatibility
-            setIsOnline(data.status === "available" || data.status === "online");
-        })
-        .catch((error) => {
-            console.log(error.message);
-        });
+                const data = await res.json();
+                
+                if(!res.ok) throw new Error(data.message);
+                
+                setUser(data);
+                setIsOnline(data.status === "available" || data.status === "online");
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    console.log("Error fetching profile:", error.message);
+                    Alert.alert("Error", error.message);
+                }
+            } finally {
+                setLoading(false); // ← Stop loading
+            }
+        };
+
+        fetchProfile();
     }, []);
 
     const handleToggle = async (value: boolean) => {
         setIsOnline(value);
-
-        // Use "available" to match the backend expectation
         const status = value ? "available" : "offline";
 
         try {
@@ -63,7 +67,6 @@ const ProfileScreen: React.FC = () => {
 
             if(!res.ok) throw new Error(data.message);
 
-            // Update user state with new status
             if (user) {
                 setUser({ ...user, status });
             }
@@ -71,7 +74,6 @@ const ProfileScreen: React.FC = () => {
             Alert.alert("Status Updated", data.message);
             
         } catch (error: unknown) {
-            // Revert the toggle if API call fails
             setIsOnline(!value);
             
             if(error instanceof Error) {
@@ -84,9 +86,6 @@ const ProfileScreen: React.FC = () => {
         }
     };
 
-
-    
-    
     const handleLogout = () => {
         logOut();
         setOrders([]);
@@ -96,24 +95,25 @@ const ProfileScreen: React.FC = () => {
             index: 0,
             routes: [{ name: "Login" }],
         });
-    };  
+    };
 
 
-    if(loading) {    
+    
+    // ✅ LOADING STATE
+    if(loading) {
         return (
-            <SafeAreaView className="flex-1 bg-gray-50">
+            <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
                 <View className="flex-1 justify-center items-center">
                     <ActivityIndicator size="large" color="green" />
+                    <Text className="mt-2">Loading Profile</Text>
                 </View>
             </SafeAreaView>
         );
     }
 
-
-
     return (
         <SafeAreaView className="flex-1" edges={["top"]}>
-            <ScrollView className="flex-1 "
+            <ScrollView className="flex-1"
             showsVerticalScrollIndicator={false}>
                 {/* Header */}
                 <View className="bg-white px-5 py-4 mx-3 rounded-2xl">
@@ -126,11 +126,11 @@ const ProfileScreen: React.FC = () => {
                         {!user?.imageFile ? (
                             <View className="items-center justify-center bg-black rounded-full"
                             style={{width: 100, height: 100 }}>
-                                <Text className="uppercase font-semibold text-white text-5xl"
-                                >{user?.firstname?.charAt(0)}</Text>
+                                <Text className="uppercase font-semibold text-white text-5xl">
+                                    {user?.firstname?.charAt(0)}
+                                </Text>
                             </View>
                         ):(
-
                             <Image 
                                 source={{ uri: `${user?.imageFile}`}}
                                 className="rounded-full"
@@ -148,8 +148,6 @@ const ProfileScreen: React.FC = () => {
 
                     <Text className="text-gray-500 text-base mt-1">Rider</Text>
                 </View>
-
-
 
                 {/* Online/Offline Toggle */}
                 <View className="bg-white mt-3 mx-3 rounded-2xl p-2">
@@ -206,7 +204,6 @@ const ProfileScreen: React.FC = () => {
                     </View>
                 </View>
 
-
                 {/* Menu Options */}
                 <View className="bg-white my-3 mx-3 p-2 rounded-2xl">
                     <TouchableOpacity 
@@ -221,9 +218,6 @@ const ProfileScreen: React.FC = () => {
                         </View>
                         <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
                     </TouchableOpacity>
-
-
-
 
                     <TouchableOpacity 
                         className="flex-row items-center justify-between py-4 border-b border-gray-100"
@@ -240,9 +234,7 @@ const ProfileScreen: React.FC = () => {
 
                     <TouchableOpacity className="flex-row items-center justify-between py-4"
                     onPress={async()=> {
-
                         try {
-
                             const senderData = {
                                 receiverId: "unknown",
                                 receiverRole: "admin"
@@ -256,6 +248,9 @@ const ProfileScreen: React.FC = () => {
                                 },
                                 body: JSON.stringify(senderData)
                             })
+
+
+
 
                             const data = await res.json();  
                             if(!res.ok) throw new Error(data.message);
@@ -271,16 +266,11 @@ const ProfileScreen: React.FC = () => {
                                     role: "admin"
                                 }
                             })
-
-
                         } catch (error: unknown ) {
                             if(error instanceof Error)
                             console.log("Error: ", error.message);
                         }
-
-                    }}
-                    
-                    >
+                    }}>
                         <View className="flex-row items-center gap-3">
                             <View className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center">
                                 <Ionicons name="help-circle-outline" size={20} color="#6b7280" />

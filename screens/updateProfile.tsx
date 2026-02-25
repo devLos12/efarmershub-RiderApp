@@ -175,6 +175,7 @@ const UpdateProfile: React.FC = () => {
             } as any);
         }
 
+        
         sendData.append("firstname", formData?.firstname);
         sendData.append("lastname", formData?.lastname);
         sendData.append("email", formData?.email);

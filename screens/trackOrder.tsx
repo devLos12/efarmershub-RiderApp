@@ -20,8 +20,8 @@ const TrackOrder: React.FC<TrackOrderProp> = ({ navigation, route }) => {
         return orders.find((order) => order._id === orderId)?.statusHistory;
     },[orderId, orders]);
 
-    
 
+    
     useEffect(()=>{
         navigation.setOptions({
             headerShown: true,
@@ -29,10 +29,6 @@ const TrackOrder: React.FC<TrackOrderProp> = ({ navigation, route }) => {
         })
     },[navigation]);
 
-
-
-
-    
 
     
     return (

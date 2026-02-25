@@ -65,3 +65,5 @@ export type RootTabParamList = {
     Inbox: undefined;
     Payouts: undefined;
 }
+
+

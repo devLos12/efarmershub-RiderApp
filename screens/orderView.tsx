@@ -57,9 +57,6 @@ const OrderView: React.FC<OrderViewProp> = ({ navigation, route }) =>{
     }, [showSuccessModal]);
 
 
-
-    
-
     useLayoutEffect(()=>{
         navigation.setOptions({
             headerShown: true,
@@ -173,6 +170,7 @@ const OrderView: React.FC<OrderViewProp> = ({ navigation, route }) =>{
 
 
 
+
     
     return (
         <View className="flex-1 bg-gray-50">
@@ -279,7 +277,9 @@ const OrderView: React.FC<OrderViewProp> = ({ navigation, route }) =>{
                         />
                     </View>
                 </Pressable>
+                
 
+                                    
                 {/* Customer Info Card */}
                 <View className="rounded-2xl shadow-sm border border-gray-100 mx-4 mt-3 overflow-hidden">
                     <View className="bg-white p-3">

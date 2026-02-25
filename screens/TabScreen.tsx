@@ -21,8 +21,6 @@ const MyCustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
 
 
     
-    
-    
     // Hide badge when navigating to Inbox tab
     useEffect(() => {
         const currentRoute = state.routes[state.index].name;
@@ -36,6 +34,7 @@ const MyCustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
         }
     }, [state.index]);
 
+    
     
     return (
         <SafeAreaView edges={["bottom","left", "right"]} 

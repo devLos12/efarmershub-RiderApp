@@ -21,13 +21,15 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
+      "googleServicesFile": "./google-services.json",
       "package": "com.anonymous.riderapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-maps"
+      "expo-maps",
+      "expo-notifications"
     ],
     "extra": {
       "eas": {

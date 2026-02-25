@@ -18,6 +18,9 @@ const TrackLocation: React.FC<TrackLocationProp> = ({ navigation }) => {
 
   
   
+  
+
+  
   useEffect(() => {
     let subscriber: Location.LocationSubscription;
 

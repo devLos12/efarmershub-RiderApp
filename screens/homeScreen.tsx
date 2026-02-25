@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_URL } from "@env";
 import { io } from "socket.io-client";
@@ -12,7 +12,8 @@ import { RootStackParamList } from "../types/navigation";
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
 const HomeScreen: React.FC = () => {
-  const { token, setOrders, setError, triggerUi, logOut, setLoading } = useAuth();
+  const { token, setOrders, setError, triggerUi, logOut, setLoading, loading, setOrdersLoading, ordersLoading }
+   = useAuth();
   const navigation = useNavigation<NavProp>();
   const latestOrderRef = useRef<any>(null);
 
@@ -24,7 +25,6 @@ const HomeScreen: React.FC = () => {
   }
   
   const getAllDelivery = async() => {
-    
     
     try{
       const res = await fetch(`${API_URL}/api/getAllDelivery`,{ 
@@ -39,7 +39,9 @@ const HomeScreen: React.FC = () => {
       
       setOrders(data.reverse());
       setLoading(false);
+      setOrdersLoading(false);
       
+
       // Store latest order in ref for socket handler
       if (data && data.length > 0) {
         latestOrderRef.current = data[0];
@@ -65,12 +67,13 @@ const HomeScreen: React.FC = () => {
       } else {
         console.log("Unknown Error: ", error);
       }
-    }
+    } 
   }
-  
+
 
   useEffect(() => {
     const socket = io(API_URL);
+
 
     getAllDelivery();
     socket.on("to rider", async (e: socketProps) => {
@@ -120,10 +123,24 @@ const HomeScreen: React.FC = () => {
       }, 200);
     });
 
+
     return () => {
       socket.disconnect();
     }
   }, [triggerUi]); // Removed 'orders' dependency
+
+
+  if(ordersLoading) {
+      return (
+          <View className="flex-1 justify-center items-center">
+              <ActivityIndicator size="large" color="green" />
+              <Text className="mt-2">Loading Orders</Text>
+          </View>
+      )
+  }
+
+
+
 
   return (
     <SafeAreaView className="flex-1" edges={["top"]}>

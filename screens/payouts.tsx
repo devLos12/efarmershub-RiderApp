@@ -179,16 +179,20 @@ const Payouts: React.FC = () => {
         setViewingImage(null);
     };
 
+
+
     if (loading) {
         return (
             <SafeAreaView className="flex-1 bg-gray-50">
                 <View className="flex-1 justify-center items-center">
                     <ActivityIndicator size="large" color="green" />
+                    <Text className="mt-2">Loading Payout</Text>
                 </View>
             </SafeAreaView>
         );
     }
     
+
     if (error && payouts.length === 0) {
         return (
             <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>

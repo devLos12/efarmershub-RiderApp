@@ -21,15 +21,15 @@ const CameraCapture: React.FC<CameraCaptureProp> = ({ navigation, route }) => {
   const [capturePhoto, setCapturePhoto] = useState<string>("");
   const cameraRef = useRef<CameraView | null>(null);
 
-  
 
+
+  
   
   if (!permission) {
     // Camera permissions are still loading.
     return <View />;
   }
-
-
+  
 
   if (!permission.granted) {
     // Camera permissions are not granted yet.

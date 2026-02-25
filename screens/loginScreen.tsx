@@ -116,6 +116,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   };
 
 
+    
   const getErrorIcon = () => {
     if (errorType === "pending") {
       return <Ionicons name="time-outline" size={70} color="#f59e0b" />;
@@ -134,7 +135,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     return "bg-red-100";
   };
 
-  
+
+
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100" edges={["top"]}>
@@ -158,7 +160,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 source={require("../assets/efarmerslogo.png")}
                 className="w-20 h-20 bg-red"/>
 
-                <Text className="font-bold text-2xl text-primary text-center ">
+                <Text className="font-bold text-2xl text-green-800 text-center ">
                   E-Farmers Hub
                 </Text>
                 <Text className="text-lg font-bold text-gray-600 capitalize w-full text-center ">
@@ -168,8 +170,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                   {API_URL}
                 </Text>
               </View>
-             
-              
 
               {/* Login Form */}
               <View className="bg-white rounded-3xl p-6 shadow-sm">

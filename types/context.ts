@@ -94,8 +94,13 @@ export type AuthContextProps = {
     inboxLoading: boolean;
     inboxError: string | null;
     getChatsInbox: () => Promise<void>;
+    ordersLoading: boolean;
+    setOrdersLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }   
 
 export type AuthProviderProps = {
     children: ReactNode;
 }
+
+
+
