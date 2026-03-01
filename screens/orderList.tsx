@@ -271,7 +271,7 @@ const OrderList: React.FC<OrderListProps> = ({ onRefresh }) => {
                                     <View className="flex-row items-center gap-2">
                                         <View className="bg-green-50 px-3 py-1 rounded-full">
                                             <Text className="text-green-700 font-semibold text-base">
-                                                #{data._id.slice(0, 8).toUpperCase()}
+                                                {data.orderId}
                                             </Text>
                                         </View>
                                     </View>

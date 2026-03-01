@@ -15,6 +15,9 @@ import {
     StyleSheet,
     TouchableWithoutFeedback,
     RefreshControl,
+    Modal,
+    Dimensions,
+    FlatList,
 } from "react-native";
 import { RootStackParamList } from "../types/navigation";
 import * as ImagePicker from 'expo-image-picker';
@@ -54,6 +57,8 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
     const [error, setError] = useState<string | null>(null);
     const [images, setImages] = useState<ImagePreview[]>([]);
     const scrollViewRef = useRef<ScrollView>(null);
+    const flatListRef = useRef<FlatList>(null);
+
     const socketRef = useRef<Socket | null>(null);
 
     const [inputHeight, setInputHeight] = useState(40);
@@ -61,7 +66,9 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
     
     
     const [refreshing, setRefreshing] = useState(false);
-    
+    const [viewImage, setViewImage] = useState<string | null>(null);
+    const [allViewImages, setAllViewImages] = useState<string[]>([]);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     
     useLayoutEffect(() => {
@@ -295,6 +302,47 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
         });
     };
 
+    const allChatImages = useMemo(() => {
+        return chat
+            .filter(msg => msg.imageFiles && msg.imageFiles.length > 0)
+            .flatMap(msg => msg.imageFiles || []);
+    }, [chat]);
+
+    const openImageViewer = (imageUrl: string) => {
+        const index = allChatImages.indexOf(imageUrl);
+        setViewImage(imageUrl);
+        setAllViewImages(allChatImages);
+        setCurrentImageIndex(index !== -1 ? index : 0);
+    };
+
+    const closeImageViewer = () => {
+        setViewImage(null);
+        setAllViewImages([]);
+        setCurrentImageIndex(0);
+    };
+
+    const selectImage = (index: number) => {
+        setCurrentImageIndex(index);
+        setViewImage(allViewImages[index]);
+        flatListRef.current?.scrollToIndex({ index, animated: true });
+    };
+
+    const nextImage = () => {
+        if (currentImageIndex < allViewImages.length - 1) {
+            const newIndex = currentImageIndex + 1;
+            setCurrentImageIndex(newIndex);
+            setViewImage(allViewImages[newIndex]);
+        }
+    };
+
+    const prevImage = () => {
+        if (currentImageIndex > 0) {
+            const newIndex = currentImageIndex - 1;
+            setCurrentImageIndex(newIndex);
+            setViewImage(allViewImages[newIndex]);
+        }
+    };
+
 
     if (loading) {
         return (
@@ -380,12 +428,16 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
                                             {hasImages && (
                                                 <View className={`my-1 ${isSender ? 'items-end' : 'items-start'}`}>
                                                     <View className="flex-row flex-wrap max-w-[70%]">
-                                                        {item.imageFiles?.map((filename, imgIndex) => (
-                                                            <Image
+                                                       {item.imageFiles?.map((filename, imgIndex) => (
+                                                            <TouchableOpacity
                                                                 key={imgIndex}
-                                                                source={{ uri: `${filename}` }}
-                                                                className="w-[120px] h-[120px] rounded-lg m-0.5"
-                                                            />
+                                                                onPress={() => openImageViewer(filename)}
+                                                            >
+                                                                <Image
+                                                                    source={{ uri: filename }}
+                                                                    className="w-[120px] h-[120px] rounded-lg m-0.5"
+                                                                />
+                                                            </TouchableOpacity>
                                                         ))}
                                                     </View>
                                                 </View>
@@ -490,6 +542,106 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
             </KeyboardAvoidingView>
 
 
+<Modal
+    visible={!!viewImage}
+    transparent
+    animationType="fade"
+    onRequestClose={closeImageViewer}
+>
+    <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.95)' }}>
+
+        {/* Close Button */}
+        <TouchableOpacity
+            onPress={closeImageViewer}
+            style={{
+                position: 'absolute', top: 44, right: 16, zIndex: 10,
+                width: 40, height: 40, borderRadius: 20,
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                justifyContent: 'center', alignItems: 'center'
+            }}
+        >
+            <Ionicons name="close" color="white" size={24} />
+        </TouchableOpacity>
+
+        {/* Counter */}
+        {allViewImages.length > 1 && (
+            <View style={{ position: 'absolute', top: 50, alignSelf: 'center', zIndex: 10 }}>
+                <View style={{ backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 16, paddingVertical: 4, borderRadius: 20 }}>
+                    <Text style={{ color: 'white', fontSize: 13 }}>{currentImageIndex + 1} / {allViewImages.length}</Text>
+                </View>
+            </View>
+        )}
+
+        {/* Swipeable Main Images */}
+        <FlatList
+            ref={flatListRef}
+            data={allViewImages}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            initialScrollIndex={currentImageIndex}
+            getItemLayout={(_, index) => ({
+                length: Dimensions.get('window').width,
+                offset: Dimensions.get('window').width * index,
+                index,
+            })}
+            onMomentumScrollEnd={(e) => {
+                const newIndex = Math.round(
+                    e.nativeEvent.contentOffset.x / Dimensions.get('window').width
+                );
+                setCurrentImageIndex(newIndex);
+                setViewImage(allViewImages[newIndex]);
+            }}
+            renderItem={({ item }) => (
+                <View style={{
+                    width: Dimensions.get('window').width,
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
+                    <Image
+                        source={{ uri: item }}
+                        style={{
+                            width: Dimensions.get('window').width,
+                            height: Dimensions.get('window').height * 0.75,
+                        }}
+                        resizeMode="contain"
+                    />
+                </View>
+            )}
+            keyExtractor={(_, index) => index.toString()}
+            style={{ flex: 1 }}
+        />
+
+        {/* Thumbnail Strip */}
+        {allViewImages.length > 1 && (
+            <View style={{ paddingBottom: 30, paddingTop: 10, backgroundColor: 'rgba(0,0,0,0.6)' }}>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingHorizontal: 12, gap: 8 }}
+                >
+                    {allViewImages.map((img, idx) => (
+                        <TouchableOpacity key={idx} onPress={() => selectImage(idx)}>
+                            <Image
+                                source={{ uri: img }}
+                                style={{
+                                    width: 60, height: 60,
+                                    borderRadius: 8,
+                                    opacity: idx === currentImageIndex ? 1 : 0.4,
+                                    borderWidth: idx === currentImageIndex ? 2 : 0,
+                                    borderColor: '#16a34a'
+                                }}
+                                resizeMode="cover"
+                            />
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            </View>
+        )}
+
+    </View>
+</Modal>
 
 
         </>

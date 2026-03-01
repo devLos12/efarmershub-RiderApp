@@ -1,4 +1,4 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from './types/navigation';
 import LoginScreen from './screens/loginScreen';
@@ -18,7 +18,7 @@ import ForgotPassword from './screens/forgotpassword';
 import QrPayment from './screens/qrpayment';
 import * as Notifications from 'expo-notifications';
 import { registerForPushNotificationsAsync } from './utils/notifications';
-
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 
 
@@ -27,58 +27,101 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator: React.FC = () => {
   const { token, loading, user } = useAuth(); // make sure user has id or _id
   const [expoPushToken, setExpoPushToken] = useState<string>('');
-  const notificationListener = useRef<Notifications.Subscription | null>(null);
-  const responseListener = useRef<Notifications.Subscription | null>(null);
+  const notificationListener = useRef<Notifications.EventSubscription | null>(null);
+  const responseListener = useRef<Notifications.EventSubscription | null>(null);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  
+  
 
+
+  const handleNotificationNavigation = async (orderId: string) => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/api/getAllDelivery`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const orders = await res.json();
+      if (!res.ok) return;
+
+      const order = orders.find((o: any) => o._id === orderId);
+      if (!order) return;
+
+      navigation.navigate('OrderView', {
+        id: order.orderId,
+        orderId: order._id,
+        userId: order.userId,
+        firstname: order.firstname,
+        lastname: order.lastname,
+        email: order.email,
+        address: order.address,
+        contact: order.contact,
+        statusDelivery: order.statusDelivery,
+        statusHistory: order.statusHistory,
+        orderItems: order.orderItems,
+        totalPrice: order.totalPrice,
+        paymentStatus: order.paymentStatus,
+      });
+    } catch (error) {
+      console.error('Failed to navigate from notification:', error);
+    }
+  };
 
   useEffect(() => {
-    // Only register when rider is logged in
-    if (!token || !user) return;
-
-    // Register and save token to backend
-    registerForPushNotificationsAsync()
-      .then(async (pushToken) => {
-        if (!pushToken) return;
-        setExpoPushToken(pushToken);
-        
-        try {
-          const response = await fetch(`${API_URL}/api/save-token`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`, // idagdag ito
-            },
-            body: JSON.stringify({
-              riderId: user._id, // change to user._id if needed
-              token: pushToken,
-            }),
-          });
-          const data = await response.json();
-        } catch (error) {
-          console.error('Failed to save push token:', error);
-        }
-      })
-      .catch((error: any) => setExpoPushToken(`${error}`));
-
-    // Fires when notification is received while app is open (foreground)
+    // ✅ Listeners — mount once agad
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-      console.log('Notification received:', notification);
     });
 
-    // Fires when rider taps the notification
-    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(async (response) => {
       const data = response.notification.request.content.data;
-      console.log('Notification tapped:', data);
-      // You can navigate here, e.g:
-      // navigationRef.current?.navigate('OrderView', { orderId: data.orderId });
+      if (!data?.orderId) return;
+      await handleNotificationNavigation(data.orderId as string);
+    });
+
+    // ✅ Quit state
+    Notifications.getLastNotificationResponseAsync().then(async (response) => {
+      if (!response) return;
+      const data = response.notification.request.content.data;
+      if (!data?.orderId) return;
+      await handleNotificationNavigation(data.orderId as string);
     });
 
     return () => {
       notificationListener.current?.remove();
       responseListener.current?.remove();
     };
-  }, [token, user?._id]);
+  }, [token]); // token dependency para may value tayo pag nag-fetch
 
+
+
+  // separate useEffect para sa token registration
+  useEffect(() => {
+    if (!token || !user) return;
+
+    registerForPushNotificationsAsync()
+      .then(async (pushToken) => {
+        if (!pushToken) return;
+        setExpoPushToken(pushToken);
+        try {
+          await fetch(`${API_URL}/api/save-token`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              riderId: user._id,
+              token: pushToken,
+            }),
+          });
+        } catch (error) {
+          console.error('Failed to save push token:', error);
+        }
+      });
+  }, [token, user?._id]);
 
   
   if (loading) return null;
@@ -105,7 +148,7 @@ const RootNavigator: React.FC = () => {
 const App = () => {
   return (
     <AuthContextProvider>
-      <NavigationContainer>
+      <NavigationContainer >
         <RootNavigator />
       </NavigationContainer>
     </AuthContextProvider>

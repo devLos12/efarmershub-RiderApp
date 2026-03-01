@@ -40,7 +40,7 @@ const OrderView: React.FC<OrderViewProp> = ({ navigation, route }) =>{
         return current?.paymentStatus;
     }, [orders, orderId]);
 
-    
+        
     useEffect(() => {
         if (showSuccessModal) {
             setTimeout(() => setIsModalVisible(true), 10);
@@ -60,7 +60,7 @@ const OrderView: React.FC<OrderViewProp> = ({ navigation, route }) =>{
     useLayoutEffect(()=>{
         navigation.setOptions({
             headerShown: true,
-            title: `Order: ${id?.slice(0,8).toUpperCase()}`,
+            title: `${id}`,
         })
     },[navigation, orderId, id]);
 
@@ -278,7 +278,6 @@ const OrderView: React.FC<OrderViewProp> = ({ navigation, route }) =>{
                     </View>
                 </Pressable>
                 
-
                                     
                 {/* Customer Info Card */}
                 <View className="rounded-2xl shadow-sm border border-gray-100 mx-4 mt-3 overflow-hidden">
@@ -402,14 +401,17 @@ const OrderView: React.FC<OrderViewProp> = ({ navigation, route }) =>{
 
                         {/* Payment Receipt Section */}
                         {status === "in transit" && paymentStatus !== "paid" && (
-                            <View className="mt-4 p-3 bg-blue-50 rounded-xl border border-blue-200">
+                            <View className="mt-4 p-3 bg-yellow-50 rounded-xl border border-gray-100">
                                 <View className="flex-row items-center gap-2 mb-2">
-                                    <MaterialCommunityIcons name="receipt" size={18} color="#3b82f6" />
-                                    <Text className="text-sm font-semibold text-blue-900">GCash/Maya Receipt</Text>
+                                    <MaterialCommunityIcons 
+                                    name="receipt" 
+                                    size={18}  
+                                    />
+                                    <Text className="font-semibold  ">GCash/Maya Receipt</Text>
                                 </View>
                                 
-                                <Text className="text-xs text-blue-700 mb-3">
-                                    If customer paid via system QR code (not cash), attach payment receipt here
+                                <Text className="text-sm mb-3">
+                                    Required before marking as delivered. If cash on delivery, take a photo of the actual cash payment. If paid via GCash/Maya, attach the GCash/Maya receipt.
                                 </Text>
 
                                 {paymentReceipt ? (
@@ -435,11 +437,14 @@ const OrderView: React.FC<OrderViewProp> = ({ navigation, route }) =>{
                                 ) : (
                                     <TouchableOpacity
                                         onPress={pickReceipt}
-                                        className="bg-white border-2 border-dashed border-blue-300 rounded-lg p-4 items-center"
+                                        className="bg-white border-2 border-dashed border-yellow-500 rounded-lg p-4 items-center"
                                         disabled={isLoading}
                                     >
-                                        <MaterialCommunityIcons name="file-upload-outline" size={32} color="#3b82f6" />
-                                        <Text className="text-blue-600 font-semibold mt-2">Attach Receipt</Text>
+                                        <MaterialCommunityIcons name="file-upload-outline" 
+                                        size={32} 
+                                        className="text-yellow-500"
+                                        />
+                                        <Text className="font-semibold mt-2">Attach Receipt</Text>
                                         <Text className="text-xs text-gray-500 mt-1">Tap to select from gallery</Text>
                                     </TouchableOpacity>
                                 )}
@@ -447,7 +452,7 @@ const OrderView: React.FC<OrderViewProp> = ({ navigation, route }) =>{
                                 <View className="mt-3 bg-white rounded-lg p-2 flex-row items-start gap-2">
                                     <Ionicons name="information-circle" size={16} color="#6b7280" />
                                     <Text className="text-xs text-gray-600 flex-1">
-                                        Optional: Only attach if customer used system QR payment. Images are auto-compressed to 60% quality.
+                                        Required: Photo of cash payment if COD, or GCash/Maya receipt.
                                     </Text>
                                 </View>
                             </View>
@@ -489,12 +494,14 @@ const OrderView: React.FC<OrderViewProp> = ({ navigation, route }) =>{
                         </View>
                     </View>
                 )}
+                
 
                 <TouchableOpacity 
                     className={`p-3.5 mx-4 rounded-xl flex-row items-center justify-center gap-2 ${
-                        status === "delivered" || isLoading ? "bg-gray-400" : "bg-black"
+                        status === "delivered" || isLoading 
+                        || status === "in transit" && paymentStatus !== "paid" && !paymentReceipt ? "bg-gray-400" : "bg-black"
                     }`}
-                    disabled={status === "delivered" || isLoading}
+                    disabled={status === "delivered" || isLoading || (status === "in transit" && paymentStatus !== "paid" && !paymentReceipt)}
                     activeOpacity={0.8}
                     onPress={async()=>{
                         if(status === "in transit" && !imageProof){

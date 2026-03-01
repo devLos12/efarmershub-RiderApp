@@ -12,7 +12,6 @@ import { useAuth } from '../context/useAuth';
 type CameraCaptureProp = NativeStackScreenProps<RootStackParamList, "Camera">;
 
 
-
 const CameraCapture: React.FC<CameraCaptureProp> = ({ navigation, route }) => {
   const { orderId } = route.params;
   const { setOrders } = useAuth();
@@ -23,7 +22,6 @@ const CameraCapture: React.FC<CameraCaptureProp> = ({ navigation, route }) => {
 
 
 
-  
   
   if (!permission) {
     // Camera permissions are still loading.

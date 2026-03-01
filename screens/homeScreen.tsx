@@ -9,13 +9,17 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 
+  
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
+
+
 
 const HomeScreen: React.FC = () => {
   const { token, setOrders, setError, triggerUi, logOut, setLoading, loading, setOrdersLoading, ordersLoading }
    = useAuth();
   const navigation = useNavigation<NavProp>();
   const latestOrderRef = useRef<any>(null);
+
 
   type socketProps = {
     message: string;
@@ -40,7 +44,7 @@ const HomeScreen: React.FC = () => {
       setOrders(data.reverse());
       setLoading(false);
       setOrdersLoading(false);
-      
+        
 
       // Store latest order in ref for socket handler
       if (data && data.length > 0) {
@@ -97,6 +101,7 @@ const HomeScreen: React.FC = () => {
                 // Use the latest order from ref
                 const data = latestOrderRef.current;
                 
+
                 if (data) {
                   navigation.navigate("OrderView", {
                     id: data.orderId, 
@@ -122,7 +127,7 @@ const HomeScreen: React.FC = () => {
         );
       }, 200);
     });
-
+    
 
     return () => {
       socket.disconnect();
@@ -138,7 +143,6 @@ const HomeScreen: React.FC = () => {
           </View>
       )
   }
-
 
 
 

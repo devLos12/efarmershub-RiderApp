@@ -44,6 +44,8 @@ const Inbox: React.FC = () => {
         setRefreshing(false);
     };
 
+
+        
     const formatTime = (date: string) => {
         const messageDate = new Date(date);
         const now = new Date();
