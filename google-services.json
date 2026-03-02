@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "455869161037",
+    "project_id": "efarmershub",
+    "storage_bucket": "efarmershub.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:455869161037:android:42b9378068ba4bb5268604",
+        "android_client_info": {
+          "package_name": "com.anonymous.riderapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKWRX3bH7n7cggiF4z-0n9XYYcNVEt_1Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
