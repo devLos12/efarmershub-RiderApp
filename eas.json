@@ -8,7 +8,7 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "API_URL": "http://10.39.184.197:5200"
+        "API_URL": "http://10.192.250.197:5200"
       }
     },
     "preview": {
