@@ -292,6 +292,7 @@ const Inbox: React.FC = () => {
                             );
                         })
                     ) : (
+
                         <Pressable onPress={() => {
                             if (openMenuId) setOpenMenuId(null);
                         }}>

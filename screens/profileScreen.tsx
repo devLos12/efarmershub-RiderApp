@@ -14,13 +14,19 @@ const ProfileScreen: React.FC = () => {
     const { token, logOut, setOrders, user, setUser } = useAuth();
     const navigation = useNavigation<NavProp>();
     const [isOnline, setIsOnline] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(true); // ← Local loading state
+    const [loading, setLoading] = useState<boolean>(true);
+    
+    // ← NEW: Modal states for status update
+    const [showStatusModal, setShowStatusModal] = useState<boolean>(false);
+    const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+    const [statusModalMessage, setStatusModalMessage] = useState<string>("");
+    const [statusSuccess, setStatusSuccess] = useState<boolean>(true);
     
     // Rider profile
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                setLoading(true); // ← Start loading
+                setLoading(true);
                 
                 const res = await fetch(`${API_URL}/api/getProfile`, { 
                     method: "GET",
@@ -42,12 +48,26 @@ const ProfileScreen: React.FC = () => {
                     Alert.alert("Error", error.message);
                 }
             } finally {
-                setLoading(false); // ← Stop loading
+                setLoading(false);
             }
         };
 
         fetchProfile();
     }, []);
+
+        
+
+    // ← NEW: Modal animation effect
+    useEffect(() => {
+        if (showStatusModal) {
+            setTimeout(() => setIsModalVisible(true), 10);
+            const timer = setTimeout(() => {
+                setIsModalVisible(false);
+                setTimeout(() => setShowStatusModal(false), 300);
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [showStatusModal]);
 
     const handleToggle = async (value: boolean) => {
         setIsOnline(value);
@@ -71,17 +91,25 @@ const ProfileScreen: React.FC = () => {
                 setUser({ ...user, status });
             }
 
-            Alert.alert("Status Updated", data.message);
+            // ← NEW: Show success modal instead of Alert
+            setStatusSuccess(true);
+            setStatusModalMessage(`You are now ${status === "available" ? "online" : "offline"}`);
+            setShowStatusModal(true);
             
         } catch (error: unknown) {
             setIsOnline(!value);
             
             if(error instanceof Error) {
                 console.log("Error: ", error.message);
-                Alert.alert("Error", error.message);
+                // ← NEW: Show error modal instead of Alert
+                setStatusSuccess(false);
+                setStatusModalMessage(error.message);
+                setShowStatusModal(true);
             } else {
                 console.log("Unknown Error: ", error);
-                Alert.alert("Error", "Failed to update status");
+                setStatusSuccess(false);
+                setStatusModalMessage("Failed to update status");
+                setShowStatusModal(true);
             }
         }
     };
@@ -97,8 +125,6 @@ const ProfileScreen: React.FC = () => {
         });
     };
 
-
-    
     // ✅ LOADING STATE
     if(loading) {
         return (
@@ -113,6 +139,39 @@ const ProfileScreen: React.FC = () => {
 
     return (
         <SafeAreaView className="flex-1" edges={["top"]}>
+            {/* ← NEW: Status Update Modal */}
+            {showStatusModal && (
+                <View style={{
+                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                    zIndex: 9999, justifyContent: 'center', alignItems: 'center',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                }}>
+                    <View style={{
+                        backgroundColor: 'white', borderRadius: 20, padding: 24,
+                        alignItems: 'center', minWidth: 280,
+                        transform: [{ scale: isModalVisible ? 1 : 0.9 }],
+                        opacity: isModalVisible ? 1 : 0,
+                    }}>
+                        {statusSuccess ? (
+                            <>
+                                <View className="bg-green-100 rounded-full p-4 mb-4">
+                                    <Ionicons name="checkmark-circle" size={48} color="#22c55e" />
+                                </View>
+                                <Text className="text-xl font-bold text-gray-800 mb-2">Success!</Text>
+                            </>
+                        ) : (
+                            <>
+                                <View className="bg-red-100 rounded-full p-4 mb-4">
+                                    <Ionicons name="close-circle" size={48} color="#ef4444" />
+                                </View>
+                                <Text className="text-xl font-bold text-gray-800 mb-2">Error</Text>
+                            </>
+                        )}
+                        <Text className="text-base text-gray-600 text-center">{statusModalMessage}</Text>
+                    </View>
+                </View>
+            )}
+
             <ScrollView className="flex-1"
             showsVerticalScrollIndicator={false}>
                 {/* Header */}
@@ -219,6 +278,8 @@ const ProfileScreen: React.FC = () => {
                         <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
                     </TouchableOpacity>
 
+
+
                     <TouchableOpacity 
                         className="flex-row items-center justify-between py-4 border-b border-gray-100"
                         onPress={() => navigation.navigate("QrPayment")}
@@ -232,6 +293,23 @@ const ProfileScreen: React.FC = () => {
                         <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
                     </TouchableOpacity>
 
+
+                    <TouchableOpacity 
+                        className="flex-row items-center justify-between py-4 border-b border-gray-100"
+                        onPress={() => navigation.navigate("ChangePassword")}
+                    >
+                        <View className="flex-row items-center gap-3">
+                            <View className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center">
+                                <Ionicons name="lock-closed-outline" size={20} 
+                                color="#6b7280"
+                                />
+                            </View>
+                            <Text className="text-gray-900 text-base">Change Password</Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+                    </TouchableOpacity>
+                    
+                    
                     <TouchableOpacity className="flex-row items-center justify-between py-4"
                     onPress={async()=> {
                         try {
@@ -248,9 +326,6 @@ const ProfileScreen: React.FC = () => {
                                 },
                                 body: JSON.stringify(senderData)
                             })
-
-
-
 
                             const data = await res.json();  
                             if(!res.ok) throw new Error(data.message);
@@ -297,5 +372,7 @@ const ProfileScreen: React.FC = () => {
         </SafeAreaView>
     );
 };
+
+
 
 export default ProfileScreen;

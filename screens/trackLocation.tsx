@@ -17,10 +17,7 @@ const TrackLocation: React.FC<TrackLocationProp> = ({ navigation }) => {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
 
   
-  
-  
 
-  
   useEffect(() => {
     let subscriber: Location.LocationSubscription;
 
@@ -47,7 +44,7 @@ const TrackLocation: React.FC<TrackLocationProp> = ({ navigation }) => {
       if (subscriber) subscriber.remove();
     };
   }, []);
-
+      
 
   useEffect(() => {
     navigation.setOptions({

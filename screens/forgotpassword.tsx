@@ -147,6 +147,8 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
     }
   };
 
+    
+
   
   const handleChangePassword = async () => {
     setPasswordError({ newPassword: '', confirmPassword: '' });

@@ -138,6 +138,8 @@ const QrPayment: React.FC<QrPaymentProp> = ({ navigation, route }) => {
     }
 
 
+
+    
     return (
         <SafeAreaView className="flex-1 bg-gray-50" edges={['bottom']}>
             <ScrollView 

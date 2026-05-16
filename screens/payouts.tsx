@@ -5,13 +5,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../context/useAuth";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
-
-
-
-
-
-
-
 type Payout = {
     _id: string;
     riderName: string;
@@ -29,8 +22,6 @@ type Payout = {
     imageFile?: string;
 };
 
-
-
 const Payouts: React.FC = () => {
     const { token, logOut } = useAuth();
     const [payouts, setPayouts] = useState<Payout[]>([]);
@@ -40,13 +31,11 @@ const Payouts: React.FC = () => {
     const [isSelectMode, setIsSelectMode] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [viewingImage, setViewingImage] = useState<string | null>(null);
-
-
-
-
-
-
-
+    
+    // ← NEW: Confirmation modal states
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -58,8 +47,6 @@ const Payouts: React.FC = () => {
         return date.toLocaleDateString('en-US', options);
     }
 
-
-
     const getPayout = async () => {
         try {
             const res = await fetch(`${API_URL}/api/getPayouts`, {
@@ -69,10 +56,8 @@ const Payouts: React.FC = () => {
                     "Authorization": `Bearer ${token}`
                 }
             });
-
             const data = await res.json();
             if (!res.ok) throw new Error(data.message);
-
             setPayouts(data.reverse());
             
             setError("");
@@ -113,7 +98,6 @@ const Payouts: React.FC = () => {
             return updated;
         });
     };
-
     
     const toggleSelectAll = () => {
         if (selectedIds.size === payouts.length) {
@@ -124,47 +108,53 @@ const Payouts: React.FC = () => {
         }
     };
 
+    // ← NEW: Show confirmation modal instead of Alert
     const handleDelete = async () => {
         if (selectedIds.size === 0) {
             Alert.alert("No Selection", "Please select at least one payout to delete");
             return;
         }
+        setShowConfirmModal(true);
+        setIsConfirmModalVisible(false);
+        setTimeout(() => setIsConfirmModalVisible(true), 10);
+    };
 
-        Alert.alert(
-            "Confirm Delete",
-            `Are you sure you want to delete ${selectedIds.size} payout${selectedIds.size > 1 ? 's' : ''}?`,
-            [
-                { text: "Cancel", style: "cancel" },
-                {
-                    text: "Delete",
-                    style: "destructive",
-                    onPress: async () => {
-                        try {
-                            const items = Array.from(selectedIds);
-                            const res = await fetch(`${API_URL}/api/riderDeletePayout`, {
-                                method: "PATCH",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                    "Authorization": `Bearer ${token}`
-                                },
-                                body: JSON.stringify({ items })
-                            });
+    // ← NEW: Actual delete function
+    const confirmDelete = async () => {
+        setIsDeleting(true);
+        try {
+            const items = Array.from(selectedIds);
+            const res = await fetch(`${API_URL}/api/riderDeletePayout`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ items })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message);
+            setPayouts((prev) => prev.filter((item) => !selectedIds.has(item._id)));
+            setSelectedIds(new Set());
+            setIsSelectMode(false);
+            
+            // Close modal
+            setIsConfirmModalVisible(false);
+            setTimeout(() => setShowConfirmModal(false), 300);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                Alert.alert("Error", error.message);
+            }
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
-                            const data = await res.json();
-                            if (!res.ok) throw new Error(data.message);
-
-                            setPayouts((prev) => prev.filter((item) => !selectedIds.has(item._id)));
-                            setSelectedIds(new Set());
-                            setIsSelectMode(false);
-                        } catch (error: unknown) {
-                            if (error instanceof Error) {
-                                Alert.alert("Error", error.message);
-                            }
-                        }
-                    }
-                }
-            ]
-        );
+    const closeConfirmModal = () => {
+        if (!isDeleting) {
+            setIsConfirmModalVisible(false);
+            setTimeout(() => setShowConfirmModal(false), 300);
+        }
     };
 
     useEffect(() => {
@@ -179,8 +169,6 @@ const Payouts: React.FC = () => {
         setViewingImage(null);
     };
 
-
-
     if (loading) {
         return (
             <SafeAreaView className="flex-1 bg-gray-50">
@@ -192,7 +180,6 @@ const Payouts: React.FC = () => {
         );
     }
     
-
     if (error && payouts.length === 0) {
         return (
             <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
@@ -244,6 +231,110 @@ const Payouts: React.FC = () => {
 
     return (
         <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
+            {/* ← NEW: Confirmation Modal */}
+            {showConfirmModal && (
+                <View style={{
+                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                    zIndex: 9999, justifyContent: 'center', alignItems: 'center',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                }}>
+                    <View style={{
+                        backgroundColor: 'white', borderRadius: 20, padding: 24,
+                        alignItems: 'center', minWidth: 280,
+                        transform: [{ scale: isConfirmModalVisible ? 0.9 : 0.9 }],
+                        opacity: isConfirmModalVisible ? 1 : 0,
+                    }}>
+                        <View className="bg-red-100 rounded-full p-4 mb-4">
+                            <Ionicons name="trash" size={48} color="#ef4444" />
+                        </View>
+                        <Text className="text-xl font-bold text-gray-800 mb-2 text-center">
+                            Delete {selectedIds.size} Payout{selectedIds.size > 1 ? 's' : ''}?
+                        </Text>
+                        <Text className="text-base text-gray-600 text-center mb-6">
+                            This action cannot be undone.
+                        </Text>
+
+                        {/* Buttons */}
+                        <View className="flex-row gap-3 w-full">
+                            <TouchableOpacity
+                                onPress={closeConfirmModal}
+                                disabled={isDeleting}
+                                className="flex-1 bg-gray-100 rounded-lg py-3"
+                                activeOpacity={0.7}
+                            >
+                                <Text className="text-gray-800 font-semibold text-center">Cancel</Text>
+                            </TouchableOpacity>
+                            
+                            <TouchableOpacity
+                                onPress={confirmDelete}
+                                disabled={isDeleting}
+                                className="flex-1 bg-red-500 rounded-lg py-3 flex-row items-center justify-center gap-2"
+                                activeOpacity={0.7}
+                            >
+                                {isDeleting ? (
+                                    <>
+                                        <ActivityIndicator size="small" color="white" />
+                                        <Text className="text-white font-semibold">Deleting...</Text>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Ionicons name="trash" size={18} color="white" />
+                                        <Text className="text-white font-semibold">Delete</Text>
+                                    </>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            )}
+
+            {/* ← STICKY HEADER - Outside ScrollView */}
+            <View className="px-4 py-4 bg-white border-b border-gray-100">
+                <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center gap-3 flex-1">
+                        <View className="bg-green-100 p-2 rounded-full">
+                            <MaterialCommunityIcons name="wallet" size={24} color="#16a34a" />
+                        </View>
+                        <View className="flex-1">
+                            <Text className="text-2xl font-bold text-gray-800">Payouts</Text>
+                            <Text className="text-sm text-gray-500">
+                                {selectedIds.size > 0
+                                    ? `${selectedIds.size} selected`
+                                    : `${payouts.length} total records`}
+                            </Text>
+                        </View>
+                    </View>
+                    <View className="flex-row gap-2">
+                        {isSelectMode && selectedIds.size > 0 && (
+                            <TouchableOpacity
+                                onPress={handleDelete}
+                                className="bg-red-500 px-4 py-2 rounded-xl flex-row items-center gap-2"
+                                activeOpacity={0.7}
+                            >
+                                <Ionicons name="trash" size={16} color="white" />
+                                <Text className="text-white font-semibold text-sm">Delete</Text>
+                            </TouchableOpacity>
+                        )}
+                        <TouchableOpacity
+                            onPress={toggleSelectMode}
+                            className={`px-4 py-2 rounded-xl flex-row items-center gap-2 ${
+                                isSelectMode ? "bg-gray-800" : "bg-green-600"
+                            }`}
+                            activeOpacity={0.7}
+                        >
+                            <Ionicons
+                                name={isSelectMode ? "close" : "checkmark-circle-outline"}
+                                size={16}
+                                color="white"
+                            />
+                            <Text className="text-white font-semibold text-sm">
+                                {isSelectMode ? "Cancel" : "Select"}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+
             <ScrollView
                 className="flex-1"
                 showsVerticalScrollIndicator={false}
@@ -257,53 +348,6 @@ const Payouts: React.FC = () => {
                 }
             >
                 <View className="px-4 py-4">
-                    {/* Header */}
-                    <View className="flex-row items-center justify-between mb-4">
-                        <View className="flex-row items-center gap-3">
-                            <View className="bg-green-100 p-2 rounded-full">
-                                <MaterialCommunityIcons name="wallet" size={24} color="#16a34a" />
-                            </View>
-                            <View>
-                                <Text className="text-2xl font-bold text-gray-800">Payouts</Text>
-                                <Text className="text-sm text-gray-500">
-                                    {selectedIds.size > 0
-                                        ? `${selectedIds.size} selected`
-                                        : `${payouts.length} total records`}
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View className="flex-row gap-2">
-                            {isSelectMode && selectedIds.size > 0 && (
-                                <TouchableOpacity
-                                    onPress={handleDelete}
-                                    className="bg-red-500 px-4 py-2 rounded-xl flex-row items-center gap-2"
-                                    activeOpacity={0.7}
-                                >
-                                    <Ionicons name="trash" size={16} color="white" />
-                                    <Text className="text-white font-semibold text-sm">Delete</Text>
-                                </TouchableOpacity>
-                            )}
-
-                            <TouchableOpacity
-                                onPress={toggleSelectMode}
-                                className={`px-4 py-2 rounded-xl flex-row items-center gap-2 ${
-                                    isSelectMode ? "bg-gray-800" : "bg-green-600"
-                                }`}
-                                activeOpacity={0.7}
-                            >
-                                <Ionicons
-                                    name={isSelectMode ? "close" : "checkmark-circle-outline"}
-                                    size={16}
-                                    color="white"
-                                />
-                                <Text className="text-white font-semibold text-sm">
-                                    {isSelectMode ? "Cancel" : "Select"}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-
                     {/* Select All Button */}
                     {isSelectMode && (
                         <TouchableOpacity
@@ -433,7 +477,6 @@ const Payouts: React.FC = () => {
                                         </Text>
                                     </View>
 
-
                                     {/* Deliveries */}
                                     <View className="bg-blue-50 rounded-xl p-3 mb-3">
                                         <View className="flex-row items-center gap-2 mb-1">
@@ -469,7 +512,6 @@ const Payouts: React.FC = () => {
                                                 ₱{payout.totalAmount.toFixed(2)}
                                             </Text>
                                         </View>
-
                                         {/* Tax Amount */}
                                         <View className="flex-row items-center justify-between mb-3 pb-3 border-b border-green-200/50">
                                             <View className="flex-row items-center gap-2">
@@ -486,7 +528,6 @@ const Payouts: React.FC = () => {
                                                 - ₱{payout.taxAmount.toFixed(2)}
                                             </Text>
                                         </View>
-
                                         {/* Net Amount */}
                                         <View className="flex-row items-center justify-between">
                                             <View className="flex-row items-center gap-2">
@@ -504,9 +545,7 @@ const Payouts: React.FC = () => {
                                             </Text>
                                         </View>
                                     </View>
-
                                 
-
                                     {/* Receipt Section */}
                                     {payout.imageFile ? (
                                         <TouchableOpacity
@@ -523,7 +562,6 @@ const Payouts: React.FC = () => {
                                                     className="w-12 h-12"
                                                     resizeMode="cover"
                                                 />
-
                                             </View>
                                             <View className="flex-1">
                                                 <Text className="text-xs text-gray-500 mb-0.5">
@@ -583,7 +621,6 @@ const Payouts: React.FC = () => {
                             </TouchableOpacity>
                         </View>
                     </SafeAreaView>
-
                     {/* Image */}
                     <View className="flex-1 items-center justify-center">
                         {viewingImage && (

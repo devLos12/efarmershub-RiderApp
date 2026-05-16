@@ -75,6 +75,7 @@ const UpdateProfile: React.FC = () => {
             setFormData(prev => ({ ...prev, imageFile: uri }));
         }
     };
+    
 
     const removeImage = () => {
         Alert.alert("Remove Photo", "Are you sure you want to remove your profile picture?", [
@@ -469,5 +470,6 @@ const UpdateProfile: React.FC = () => {
         </View>
     );
 };
+
 
 export default UpdateProfile;

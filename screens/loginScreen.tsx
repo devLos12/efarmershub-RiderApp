@@ -116,6 +116,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   };
 
 
+  
     
   const getErrorIcon = () => {
     if (errorType === "pending") {
@@ -134,10 +135,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     }
     return "bg-red-100";
   };
-
-
-
-
+  
+  
+    
   return (
     <SafeAreaView className="flex-1 bg-gray-100" edges={["top"]}>
       <KeyboardAvoidingView
@@ -206,6 +206,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                     </View>
                   )}
                 </View>
+
+                
 
                 {/* Password Input */}
                 <View className="mb-6">

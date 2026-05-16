@@ -19,7 +19,6 @@ const MyCustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
     const { inboxBadge, setInboxBadge } = useAuth();
 
 
-
     
     // Hide badge when navigating to Inbox tab
     useEffect(() => {
@@ -34,7 +33,7 @@ const MyCustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
         }
     }, [state.index]);
 
-    
+
     
     return (
         <SafeAreaView edges={["bottom","left", "right"]} 
@@ -85,6 +84,8 @@ const MyCustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
         </SafeAreaView>
     );
 }
+
+
 
 const TabScreen = () => {
     return (

@@ -39,9 +39,8 @@ const CameraCapture: React.FC<CameraCaptureProp> = ({ navigation, route }) => {
 
     );
   }
-
-    
-
+  
+  
   const toggleCameraFacing = ()=> {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
   }

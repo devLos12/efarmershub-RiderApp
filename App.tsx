@@ -6,7 +6,6 @@ import TabScreen from './screens/TabScreen';
 import { AuthContextProvider } from './context/authContext';
 import { useAuth } from './context/useAuth';
 import OrderView from './screens/orderView';
-import "./styles/global.css";
 import TrackLocation from './screens/trackLocation';
 import CameraCapture from './screens/cameraCapture';
 import TrackOrder from './screens/trackOrder';
@@ -19,6 +18,8 @@ import QrPayment from './screens/qrpayment';
 import * as Notifications from 'expo-notifications';
 import { registerForPushNotificationsAsync } from './utils/notifications';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import ChangePassword from './screens/changePassword';
+
 
 
 
@@ -95,8 +96,7 @@ const RootNavigator: React.FC = () => {
     };
   }, [token]); // token dependency para may value tayo pag nag-fetch
 
-
-
+    
   // separate useEffect para sa token registration
   useEffect(() => {
     if (!token || !user) return;
@@ -139,8 +139,10 @@ const RootNavigator: React.FC = () => {
       <Stack.Screen name='Camera' component={CameraCapture} options={{ headerShown: false }} />
       <Stack.Screen name='EditProfile' component={UpdateProfile} options={{ title: 'Edit Profile' }} />
       <Stack.Screen name='Messages' component={Messages} options={{ title: 'Help & Support' }} />
-      <Stack.Screen name='ForgotPassword' component={ForgotPassword} />
+      <Stack.Screen name='ForgotPassword' component={ForgotPassword} options={{ title: "Forgot Password"}} />
+      <Stack.Screen name='ChangePassword' component={ChangePassword} options={{ title: "Change Password"}}/>
       <Stack.Screen name='QrPayment' component={QrPayment} />
+      
     </Stack.Navigator>
   );
 };

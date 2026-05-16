@@ -496,6 +496,7 @@ const OrderView: React.FC<OrderViewProp> = ({ navigation, route }) =>{
                 )}
                 
 
+
                 <TouchableOpacity 
                     className={`p-3.5 mx-4 rounded-xl flex-row items-center justify-center gap-2 ${
                         status === "delivered" || isLoading 

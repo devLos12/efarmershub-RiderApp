@@ -572,6 +572,8 @@ const Messages: React.FC<MessageProp> = ({ navigation, route }) => {
             </View>
         )}
 
+        
+
         {/* Swipeable Main Images */}
         <FlatList
             ref={flatListRef}

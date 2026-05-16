@@ -1,5 +1,6 @@
 
 export type RootStackParamList = {
+    ChangePassword: undefined;
     QrPayment: undefined;
     ForgotPassword: undefined;
     Login: undefined;
