@@ -31,6 +31,8 @@ const HomeScreen: React.FC = () => {
   }
   
   const getAllDelivery = async() => {
+    setOrdersLoading(true);
+
     
     try{
       const res = await fetch(`${API_URL}/api/getAllDelivery`,{ 
@@ -45,19 +47,18 @@ const HomeScreen: React.FC = () => {
       
       setOrders(data.reverse());
       setLoading(false);
-      setOrdersLoading(false);
-        
 
       // Store latest order in ref for socket handler
       if (data && data.length > 0) {
         latestOrderRef.current = data[0];
       } 
-
       
     }catch(error: unknown){
       if( error instanceof Error){
         setError(error.message);
-        setLoading(false)
+        setLoading(false);
+        setOrdersLoading(false);
+
 
         if(error.message === "Token Expired!"){
           Alert.alert("Error: ", "Session Expired");
@@ -71,9 +72,12 @@ const HomeScreen: React.FC = () => {
 
         console.log("Error:", error.message);
       } else {
+        setOrdersLoading(false);
         console.log("Unknown Error: ", error);
       }
-    } 
+    } finally {
+      setOrdersLoading(false);
+    }
   }
 
   // ← NEW: Close modal function
@@ -194,6 +198,10 @@ const HomeScreen: React.FC = () => {
                 </View>
               </View>
 
+
+
+
+
               {/* Buttons */}
               <View className="flex-row gap-3 w-full">
                 <TouchableOpacity
@@ -216,6 +224,7 @@ const HomeScreen: React.FC = () => {
             </View>
           </View>
         )}
+
 
         <OrderList onRefresh={getAllDelivery} />
     </SafeAreaView>

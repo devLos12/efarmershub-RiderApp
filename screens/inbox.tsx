@@ -44,6 +44,7 @@ const Inbox: React.FC = () => {
         setRefreshing(false);
     };
 
+    
 
         
     const formatTime = (date: string) => {
@@ -116,6 +117,8 @@ const Inbox: React.FC = () => {
         }).catch(err => console.log("Error marking as read:", err));
     };
     
+
+
     const handleDeleteChat = async (chatId: string) => {
         const chatToDelete = inboxList.find(chat => chat._id === chatId);
         const hasUnread = (chatToDelete?.unreadCount?.rider || 0) > 0;
@@ -156,7 +159,6 @@ const Inbox: React.FC = () => {
     }
 
 
-    
 
     return (
         <SafeAreaView className="flex-1 bg-gray-50">

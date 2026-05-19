@@ -41,13 +41,13 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
         show: false
     });
     const [inboxList, setInboxList] = useState<InboxItem[]>([]);
-    const [inboxLoading, setInboxLoading] = useState(true);
+    const [inboxLoading, setInboxLoading] = useState(false);
     const [inboxError, setInboxError] = useState<string | null>(null);
     const socketRef = useRef<any>(null);
-    const [ordersLoading, setOrdersLoading] = useState(true);
+    const [ordersLoading, setOrdersLoading] = useState(false);
 
 
-
+    
 
 
     
@@ -56,6 +56,9 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
     // Fetch inbox chats
     const getChatsInbox = async () => {
         if (!token) return;
+
+
+        setInboxLoading(true);
 
         try {
             const res = await fetch(`${API_URL}/api/getRiderInboxChat`, {
@@ -67,14 +70,10 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
             const data = await res.json();
             if (!res.ok) throw new Error(data.message);
 
-            
-
-            setInboxLoading(false);
             setInboxError(null);
             setInboxList(data);
+            
 
-            
-            
 
             // Count unread chats and update badge
             const unreadChatsCount = data.filter((chat: InboxItem) => {
@@ -90,6 +89,9 @@ export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) =
             setInboxLoading(false);
             setInboxError(err.message);
             console.log("Error fetching inbox:", err.message);
+        } finally {
+            setInboxLoading(false);
+
         }
     };
 

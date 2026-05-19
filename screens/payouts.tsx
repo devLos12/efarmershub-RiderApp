@@ -26,7 +26,7 @@ const Payouts: React.FC = () => {
     const { token, logOut } = useAuth();
     const [payouts, setPayouts] = useState<Payout[]>([]);
     const [refreshing, setRefreshing] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [isSelectMode, setIsSelectMode] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -48,6 +48,9 @@ const Payouts: React.FC = () => {
     }
 
     const getPayout = async () => {
+        setLoading(true);
+        
+
         try {
             const res = await fetch(`${API_URL}/api/getPayouts`, {
                 method: "GET",
@@ -59,12 +62,15 @@ const Payouts: React.FC = () => {
             const data = await res.json();
             if (!res.ok) throw new Error(data.message);
             setPayouts(data.reverse());
-            
             setError("");
+
+
         } catch (error: unknown) {
+
             if (error instanceof Error) {
                 console.log("Error:", error.message);
                 setError(error.message);
+                setLoading(false);
                 
                 if (error.message === "Token Expired!") {
                     Alert.alert("Session Expired", "Please login again");
@@ -75,6 +81,9 @@ const Payouts: React.FC = () => {
             setLoading(false);
         }
     };
+
+
+
 
     const onRefresh = async () => {
         setRefreshing(true);
